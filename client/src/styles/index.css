@@ -1,0 +1,221 @@
+@import 'tailwindcss';
+
+/* Self-hosted rather than loaded from Google Fonts: this shop is deployed on
+   a VM that may have no outbound internet, and Google Fonts is slow or
+   unreachable from Iran. One variable file covers every weight from 100 to
+   900, so there is a single request instead of four. Vite fingerprints the
+   filename on build, so a redeploy cannot serve a stale cached font. */
+@font-face {
+  font-family: 'Vazirmatn';
+  src: url('../assets/fonts/vazirmatn-variable.woff2') format('woff2-variations');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ---------------------------------------------------------------------------
+   The design system. Every token the UI is allowed to use lives here, so a
+   colour or a radius is changed in one place rather than hunted through JSX.
+   Tailwind v4 reads this block and generates the utilities from it: a
+   `--color-brand-600` token becomes `bg-brand-600`, `text-brand-600`,
+   `border-brand-600` and so on, with no config file.
+--------------------------------------------------------------------------- */
+@theme {
+  --font-sans:
+    'Vazirmatn', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  /* Brand: a deep teal. Deliberately not red — red is the house colour of the
+     biggest Persian shops, and it is needed here for discounts instead. */
+  --color-brand-50: #eefcf9;
+  --color-brand-100: #d5f7f0;
+  --color-brand-200: #aeeee3;
+  --color-brand-300: #78dfd1;
+  --color-brand-400: #42c7b8;
+  --color-brand-500: #1faa9e;
+  --color-brand-600: #118a82;
+  --color-brand-700: #106e69;
+  --color-brand-800: #115855;
+  --color-brand-900: #114947;
+  --color-brand-950: #042c2c;
+
+  /* Neutrals, warmed very slightly so large text areas do not read as cold
+     grey next to the teal. */
+  --color-ink-50: #f8f8f7;
+  --color-ink-100: #f1f1ef;
+  --color-ink-200: #e4e4e1;
+  --color-ink-300: #cfcfca;
+  --color-ink-400: #a3a39c;
+  --color-ink-500: #7a7a73;
+  --color-ink-600: #5e5e58;
+  --color-ink-700: #4b4b47;
+  --color-ink-800: #383835;
+  --color-ink-900: #25251f;
+  --color-ink-950: #161614;
+
+  /* Discounts and prices. Persian shops signal a sale in red, so this is the
+     one place red earns its loudness. */
+  --color-sale-50: #fff1f3;
+  --color-sale-100: #ffe0e5;
+  --color-sale-500: #f43f5e;
+  --color-sale-600: #e11d48;
+  --color-sale-700: #be123c;
+
+  /* Status colours, used by badges and alerts rather than picked per screen. */
+  --color-success-50: #f0fdf4;
+  --color-success-100: #dcfce7;
+  --color-success-600: #16a34a;
+  --color-success-700: #15803d;
+  --color-warn-50: #fffbeb;
+  --color-warn-100: #fef3c7;
+  --color-warn-600: #d97706;
+  --color-warn-700: #b45309;
+  --color-info-50: #eff6ff;
+  --color-info-100: #dbeafe;
+  --color-info-600: #2563eb;
+  --color-info-700: #1d4ed8;
+
+  /* One radius scale. `--radius-card` is the only one cards may use, which is
+     what keeps a page from mixing four different corner roundings. */
+  --radius-card: 0.875rem;
+  --radius-control: 0.625rem;
+  --radius-pill: 9999px;
+
+  /* Soft, low-contrast shadows. A product grid with heavy shadows reads as a
+     dashboard mock-up rather than a shop. */
+  --shadow-card: 0 1px 2px 0 rgb(37 37 31 / 0.04), 0 1px 3px 0 rgb(37 37 31 / 0.06);
+  --shadow-card-hover: 0 4px 12px -2px rgb(37 37 31 / 0.1), 0 2px 6px -2px rgb(37 37 31 / 0.06);
+  --shadow-panel: 0 10px 30px -12px rgb(37 37 31 / 0.18);
+
+  /* Named so a page can say `max-w-page` instead of repeating a number. */
+  --container-page: 80rem;
+}
+
+@layer base {
+  html {
+    /* The browser's own smooth scroll, used by "back to top" style links. */
+    scroll-behavior: smooth;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    @apply bg-ink-50 text-ink-900 font-sans antialiased;
+    /* Vazirmatn's default line height is tight for Persian, which stacks
+       diacritics and descenders. 1.75 is comfortable for body copy; headings
+       tighten it back up themselves. */
+    line-height: 1.75;
+  }
+
+  /* Persian headings need slightly tighter tracking and leading than the body,
+     or large sizes look loose. */
+  h1, h2, h3, h4 {
+    @apply font-bold text-ink-900;
+    line-height: 1.4;
+  }
+
+  /* One focus style for the whole app, visible but not shouty, and only for
+     keyboard users — :focus-visible leaves mouse clicks alone. */
+  :focus-visible {
+    @apply outline-brand-600 rounded-sm outline-2 outline-offset-2;
+  }
+
+  /* Latin runs inside Persian text — emails, URLs, order numbers, phone
+     numbers — need their own direction or RTL reorders them. See the `.ltr`
+     utility below for the explicit cases. */
+  input,
+  textarea,
+  select,
+  button {
+    font: inherit;
+  }
+
+  /* Numbers typed into a number input should not get RTL treatment. */
+  input[type='tel'],
+  input[type='email'],
+  input[type='url'],
+  input[type='number'] {
+    direction: ltr;
+    text-align: start;
+  }
+
+  /* A broken or missing product image should not show a torn-page icon in the
+     middle of a tidy grid; the image components fall back to a placeholder,
+     and this keeps the gap neutral in the meantime. */
+  img {
+    @apply bg-ink-100;
+  }
+
+  ::selection {
+    @apply bg-brand-200 text-brand-950;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Utilities. Only for things a plain Tailwind class cannot express.
+--------------------------------------------------------------------------- */
+
+/* Latin content inside an RTL page: order numbers, phone numbers, emails,
+   URLs, tracking codes. Without this, "ORD-1042" and "+98912…" get their
+   punctuation reordered by the bidi algorithm and read wrongly. */
+@utility ltr {
+  direction: ltr;
+  unicode-bidi: isolate;
+  text-align: start;
+}
+
+/* The page gutter, identical on every screen so content lines up between
+   pages. 16px on phones, as the brief requires. */
+@utility page-container {
+  @apply mx-auto w-full max-w-page px-4 sm:px-6 lg:px-8;
+}
+
+/* Clamp a product name to two lines so cards in a grid stay the same height
+   whatever the name length. */
+@utility line-clamp-2-fixed {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+/* A horizontal scroller without a visible scrollbar, for the category strip
+   and image thumbnails on touch screens. */
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* The shimmer used by every skeleton, so loading states look like one system.
+   Honours prefers-reduced-motion. */
+@utility skeleton {
+  @apply bg-ink-200 relative overflow-hidden rounded-md;
+  &::after {
+    content: '';
+    @apply absolute inset-0;
+    background-image: linear-gradient(
+      90deg,
+      transparent,
+      rgb(255 255 255 / 0.55),
+      transparent
+    );
+    animation: shimmer 1.4s infinite;
+  }
+}
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
